@@ -1,0 +1,12 @@
+Copyright (c) 2026 RID-UFE Research System
+
+All rights reserved.
+
+PUBLIC LAYER:
+- You may use, study, and run public interface code.
+
+PROPRIETARY CORE:
+- All logic inside /core is confidential and not licensed for reuse.
+- Commercial use requires explicit permission.
+
+No redistribution of core algorithms is allowed.

@@ -1,0 +1,7 @@
+# CORE PROTECTION
+core/private/
+core/secret/
+*.key
+*.env
+*.log
+__pycache__/
