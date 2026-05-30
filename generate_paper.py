@@ -1,4 +1,7 @@
+with open("results.txt", "r") as f:
+    results = f.read()
 
+latex = r"""
 \documentclass{article}
 
 \title{RID-UFE Bitcoin Research}
@@ -16,9 +19,7 @@ This report analyzes Bitcoin market information.
 \section{Results}
 
 \begin{verbatim}
-Bitcoin Price: 73970.0
-Log Price: 11.2114
-
+""" + results + r"""
 \end{verbatim}
 
 \section{Conclusion}
@@ -26,3 +27,9 @@ Log Price: 11.2114
 This is the first data-driven RID-UFE report.
 
 \end{document}
+"""
+
+with open("paper/main.tex", "w") as f:
+    f.write(latex)
+
+print("Generated: paper/main.tex")
