@@ -11,7 +11,7 @@ research:
 runs-on: ubuntu-latest
 
 steps:
-  - name: Checkout repo
+  - name: Checkout repository
     uses: actions/checkout@v4
 
   - name: Setup Python
@@ -19,19 +19,23 @@ steps:
     with:
       python-version: "3.11"
 
-  - name: Create directories
+  - name: Create folders
     run: |
       mkdir -p paper
       mkdir -p results
-      mkdir -p experiments
 
   - name: Run experiment
     run: |
       python experiments/bitcoin_report.py
 
-  - name: Generate paper
+  - name: Generate LaTeX paper
     run: |
       python generate_paper.py
+
+  - name: Verify generated files
+    run: |
+      ls -la
+      ls -la paper
 
   - name: Install LaTeX
     run: |
@@ -44,7 +48,7 @@ steps:
       pdflatex -interaction=nonstopmode main.tex
       ls -la
 
-  - name: Upload PDF
+  - name: Upload PDF artifact
     uses: actions/upload-artifact@v4
     with:
       name: research-paper
