@@ -1,43 +1,51 @@
 name: RID-UFE Research Pipeline
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+push:
+branches:
+- main
+workflow_dispatch:
 
 jobs:
-  research:
-    runs-on: ubuntu-latest
+research:
+runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+steps:
+  - name: Checkout repo
+    uses: actions/checkout@v4
 
-      - name: Create paper directory
-        run: mkdir -p paper
+  - name: Setup Python
+    uses: actions/setup-python@v5
+    with:
+      python-version: "3.11"
 
-      - name: Generate LaTeX
-        run: |
-          cat > paper/main.tex <<'EOF'
-          \documentclass{article}
-          \begin{document}
-          Hello RID-UFE
-          \end{document}
-          EOF
+  - name: Create directories
+    run: |
+      mkdir -p paper
+      mkdir -p results
+      mkdir -p experiments
 
-      - name: Install LaTeX
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y texlive-latex-base
+  - name: Run experiment
+    run: |
+      python experiments/bitcoin_report.py
 
-      - name: Build PDF
-        run: |
-          cd paper
-          pdflatex main.tex
+  - name: Generate paper
+    run: |
+      python generate_paper.py
 
-      - name: Upload PDF
-        uses: actions/upload-artifact@v4
-        with:
-          name: research-paper
-          path: paper/main.pdf
+  - name: Install LaTeX
+    run: |
+      sudo apt-get update
+      sudo apt-get install -y texlive-latex-base
+
+  - name: Build PDF
+    run: |
+      cd paper
+      pdflatex -interaction=nonstopmode main.tex
+      ls -la
+
+  - name: Upload PDF
+    uses: actions/upload-artifact@v4
+    with:
+      name: research-paper
+      path: paper/main.pdf
