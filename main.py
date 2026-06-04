@@ -1,4 +1,5 @@
 import numpy as np
+import json
 import warnings
 
 from core.safe import safe_run
@@ -10,6 +11,19 @@ from core.experiment import create_experiment, save_metrics
 from core.paper import generate_paper
 
 warnings.filterwarnings("ignore")
+
+
+def load_memory():
+    try:
+        return json.load(open("memory.json"))
+    except:
+        return []
+
+
+def save_memory(m):
+    mem = load_memory()
+    mem.append(m)
+    json.dump(mem, open("memory.json", "w"), indent=4)
 
 
 def pipeline():
@@ -24,12 +38,13 @@ def pipeline():
 
     metrics = {
         "accuracy": acc,
-        "robustness_mean": robustness["mean"],
-        "robustness_std": robustness["std"]
+        "robustness_mean": robustness["mean"]
     }
 
     exp_id, path = create_experiment()
     save_metrics(path, metrics)
+
+    save_memory({"metrics": metrics})
 
     paper = generate_paper(exp_id, metrics, prices)
 
@@ -37,8 +52,9 @@ def pipeline():
         f.write(paper)
 
     print("Experiment:", exp_id)
-    print("Price latest:", prices[-1])
-    print("System updated paper with dynamics")
+    print("Accuracy:", acc)
+    print("Robustness:", robustness["mean"])
+
 
 if __name__ == "__main__":
     safe_run(pipeline)

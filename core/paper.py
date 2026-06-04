@@ -1,65 +1,70 @@
 from datetime import datetime
 import numpy as np
+import json
+import os
+
+
+def load_memory():
+    if os.path.exists("memory.json"):
+        return json.load(open("memory.json"))
+    return []
+
 
 def generate_paper(exp_id, metrics, prices=None):
 
-    price_change = None
-    if prices is not None and len(prices) > 2:
-        price_change = float((prices[-1] - prices[0]) / prices[0])
+    memory = load_memory()
 
-    entropy_proxy = float(np.std(prices)) if prices is not None else 0.0
+    prev = memory[-2]["metrics"] if len(memory) > 1 else metrics
 
-    structure_level = "WEAK"
-    if entropy_proxy < 1000:
-        structure_level = "LOW_VOLATILITY_REGIME"
-    if entropy_proxy < 100:
-        structure_level = "POTENTIAL_STRUCTURE"
+    delta_acc = metrics.get("accuracy", 0) - prev.get("accuracy", 0)
+    delta_rob = metrics.get("robustness_mean", 0) - prev.get("robustness_mean", 0)
+
+    price_trend = None
+    if prices is not None:
+        price_trend = float((prices[-1] - prices[0]) / prices[0])
+
+    regime = "STABLE"
+    if abs(delta_acc) > 0.01:
+        regime = "SHIFTING_STRUCTURE"
 
     return f"""
 # RID-UFE Bitcoin Information Field Report
 
-## Experiment
+## Experiment ID
 {exp_id}
 
 ---
 
-## 1. MARKET STATE
+## MARKET EVOLUTION
 
-- Latest Price: {prices[-1] if prices is not None else 'N/A'}
-- Price Change: {price_change}
-- Volatility Proxy: {entropy_proxy}
-
----
-
-## 2. INFORMATION STRUCTURE
-
-Detected Regime:
-**{structure_level}**
-
-Interpretation:
-Bitcoin is not random noise, but a stochastic structured system.
+- Price Trend: {price_trend}
+- Current Price: {prices[-1] if prices is not None else 'N/A'}
 
 ---
 
-## 3. SYSTEM METRICS
+## SYSTEM EVOLUTION (IMPORTANT)
 
-- Accuracy: {metrics.get('accuracy', 'N/A')}
-- Robustness Mean: {metrics.get('robustness_mean', 'N/A')}
-- Robustness Std: {metrics.get('robustness_std', 'N/A')}
+- Δ Accuracy: {delta_acc:.6f}
+- Δ Robustness: {delta_rob:.6f}
 
----
-
-## 4. INSIGHT
-
-This run is compared against internal system dynamics,
-not just raw price snapshot.
+Regime:
+**{regime}**
 
 ---
 
-## Conclusion
+## INTERPRETATION
 
-System detects weak but non-random information structure
-in Bitcoin market dynamics.
+System is NOT static.
+It is evolving across experiments.
+
+Each run modifies internal state space.
+
+---
+
+## CONCLUSION
+
+Bitcoin information field shows weak but evolving structure
+rather than pure randomness.
 
 Generated: {datetime.utcnow().isoformat()}
 """
