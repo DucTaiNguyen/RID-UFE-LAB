@@ -1,12 +1,11 @@
-Copyright (c) 2026 RID-UFE Research System
+Copyright (c) 2026 Tai D. Nguyen
 
 All rights reserved.
 
-PUBLIC LAYER:
-- You may use, study, and run public interface code.
+Permission is granted to view, study, and evaluate this repository for personal, educational, and research purposes only.
 
-PROPRIETARY CORE:
-- All logic inside /core is confidential and not licensed for reuse.
-- Commercial use requires explicit permission.
+Commercial use, redistribution, sublicensing, sale, hosting as a service, model training for commercial products, or incorporation into commercial systems is prohibited without prior written permission from the copyright holder.
 
-No redistribution of core algorithms is allowed.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+
+For commercial licensing inquiries, contact the copyright holder.
