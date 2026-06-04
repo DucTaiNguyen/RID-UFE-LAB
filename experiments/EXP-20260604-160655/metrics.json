@@ -1,0 +1,7 @@
+{
+  "volatility": 0.02253027198035051,
+  "entropy": 2.209536678565937,
+  "random_entropy": 3.029152164503398,
+  "spectral_gap": 93.45247935850892,
+  "information_curvature": 4.263256414560601e-14
+}
