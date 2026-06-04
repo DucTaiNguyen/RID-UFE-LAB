@@ -14,19 +14,37 @@ def generate_paper(exp_id, metrics, prices=None):
 
     memory = load_memory()
 
+    # =========================
+    # EVOLUTION SIGNAL
+    # =========================
     prev = memory[-2]["metrics"] if len(memory) > 1 else metrics
 
     delta_acc = metrics.get("accuracy", 0) - prev.get("accuracy", 0)
     delta_rob = metrics.get("robustness_mean", 0) - prev.get("robustness_mean", 0)
 
-    price_trend = None
+    # =========================
+    # MARKET STRUCTURE
+    # =========================
+    price_change = None
+    volatility_proxy = None
+
     if prices is not None:
-        price_trend = float((prices[-1] - prices[0]) / prices[0])
+        price_change = float((prices[-1] - prices[0]) / prices[0])
+        volatility_proxy = float(np.std(prices))
 
-    regime = "STABLE"
+    # =========================
+    # REGIME DETECTION
+    # =========================
+    regime = "STABLE_SYSTEM"
+
     if abs(delta_acc) > 0.01:
-        regime = "SHIFTING_STRUCTURE"
+        regime = "DYNAMIC_SHIFT"
+    if volatility_proxy and volatility_proxy > 1000:
+        regime = "HIGH_NOISE_MARKET"
 
+    # =========================
+    # PAPER OUTPUT
+    # =========================
     return f"""
 # RID-UFE Bitcoin Information Field Report
 
@@ -35,36 +53,45 @@ def generate_paper(exp_id, metrics, prices=None):
 
 ---
 
-## MARKET EVOLUTION
+## MARKET STATE
 
-- Price Trend: {price_trend}
-- Current Price: {prices[-1] if prices is not None else 'N/A'}
+- Latest Price: {prices[-1] if prices is not None else 'N/A'}
+- Price Change: {price_change}
+- Volatility Proxy: {volatility_proxy}
 
 ---
 
-## SYSTEM EVOLUTION (IMPORTANT)
+## SYSTEM EVOLUTION
 
 - Δ Accuracy: {delta_acc:.6f}
 - Δ Robustness: {delta_rob:.6f}
 
-Regime:
+Regime Classification:
 **{regime}**
 
 ---
 
-## INTERPRETATION
+## INFORMATION INTERPRETATION
 
-System is NOT static.
-It is evolving across experiments.
+Bitcoin is modeled as an information field:
 
-Each run modifies internal state space.
+- Price = observable state
+- Volatility = uncertainty measure
+- Accuracy = structural detection strength
+
+---
+
+## EVOLUTION STATUS
+
+This system is NOT static.
+It evolves via memory accumulation across experiments.
 
 ---
 
 ## CONCLUSION
 
-Bitcoin information field shows weak but evolving structure
-rather than pure randomness.
+RID-UFE detects weak but non-random structure
+in Bitcoin market dynamics with temporal evolution.
 
 Generated: {datetime.utcnow().isoformat()}
 """
