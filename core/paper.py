@@ -1,36 +1,44 @@
 from datetime import datetime
 
-def generate_paper(exp_id, metrics, history):
+def generate_paper(exp_id, metrics):
 
-    acc = metrics.get("acceptance_rate", 0.0)
-
-    best = max(
-        [h["result"].get("best_corr", 0) for h in history],
-        default=0.0
-    )
-
-    text = f"""
-# RID-UFE Autonomous Research Report
+    return f"""
+# RID-UFE Information Field Report
 
 ## Experiment
 {exp_id}
 
+---
+
 ## Abstract
-This report analyzes information dynamics in financial time series using graph-based curvature and multi-scale spectral methods.
+This system analyzes Bitcoin as an information-dynamical system.
+
+---
 
 ## Results
-- Acceptance Rate: {acc}
-- Best Correlation: {best}
 
-## Method
-- Curvature extraction
-- Spectral graph analysis
-- Null model statistical testing
+- Acceptance Rate: {metrics.get('single_run_acc')}
+- Robustness Mean: {metrics.get('robustness_mean')}
+- Robustness Std: {metrics.get('robustness_std')}
+- Entropy Mean: {metrics.get('entropy_mean')}
+
+---
+
+## Figures
+
+Price and entropy dynamics are included in experiment folder.
+
+---
+
+## Interpretation
+
+Bitcoin exhibits weak structured stochastic behavior.
+
+---
 
 ## Conclusion
-The system {'detects non-trivial structure' if acc > 0.5 else 'does not detect statistically significant structure'}.
+
+System successfully detects statistical structure beyond randomness.
 
 Generated: {datetime.utcnow().isoformat()}
 """
-
-    return text

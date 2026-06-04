@@ -1,0 +1,34 @@
+name: Build RID-UFE Paper PDF
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Install Pandoc + LaTeX
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y pandoc texlive texlive-latex-extra texlive-fonts-recommended
+
+    - name: Build PDF from paper.md
+      run: |
+        mkdir -p output
+        cp -r experiments/*/price.png output/ || true
+        cp -r experiments/*/entropy.png output/ || true
+
+        pandoc experiments/*/paper.md \
+          -o output/paper.pdf \
+          --pdf-engine=xelatex
+
+    - name: Upload PDF artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: rid-ufe-paper
+        path: output/paper.pdf

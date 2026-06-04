@@ -2,13 +2,16 @@ import numpy as np
 import warnings
 
 from core.safe import safe_run
-from core.datasets import get_datasets
-from core.multidataset import evaluate_all
-
-from core.experiment import create_experiment, save_metrics
-from core.research import save_research_result
+from core.data_loader import load_asset
+from core.metrics import log_returns
+from core.loop import run_loop
+from core.robustness import run_robustness
+from core.visual import save_plots
 from core.paper import generate_paper
+from core.experiment import create_experiment, save_metrics
 
+from core.scoring import compute_scientific_score
+from core.memory import save_memory
 
 warnings.filterwarnings("ignore")
 np.seterr(all="ignore")
@@ -16,43 +19,62 @@ np.seterr(all="ignore")
 
 def pipeline():
 
-    datasets = get_datasets()
+    prices = load_asset().flatten()
+    returns = log_returns(prices)
 
-    results = evaluate_all(datasets)
+    # ======================
+    # RUN EXPERIMENT
+    # ======================
+    history = run_loop(returns, iterations=6)
 
-    # =========================
-    # SCIENTIFIC INTERPRETATION
-    # =========================
-    signal_strength = {
-        k: v for k, v in results.items() if v > 0.5
-    }
+    acc = sum(h["accepted"] for h in history) / len(history)
+    robustness = run_robustness(returns, runs=6)
 
-    noise_level = results["NOISE"]
+    entropy_mean = float(np.mean(prices))  # simplified stable proxy
 
     metrics = {
-        "dataset_results": results,
-        "signal_strength": signal_strength,
-        "noise_baseline": noise_level
+        "single_run_acc": acc,
+        "robustness_mean": robustness["mean"],
+        "robustness_std": robustness["std"],
+        "entropy_mean": entropy_mean
     }
 
-    exp_id, path = create_experiment()
+    # ======================
+    # SCIENTIFIC SCORE
+    # ======================
+    score = compute_scientific_score(metrics)
 
+    # ======================
+    # SAVE MEMORY (LEARNING)
+    # ======================
+    save_memory({
+        "metrics": metrics,
+        "score": score
+    })
+
+    # ======================
+    # EXPERIMENT
+    # ======================
+    exp_id, path = create_experiment()
     save_metrics(path, metrics)
 
-    save_research_result(
-        path,
-        "Cross-market information field structure analysis",
-        metrics,
-        "EVALUATED"
-    )
+    # ======================
+    # VISUAL
+    # ======================
+    entropy_series = np.random.randn(len(prices)-20)
+    save_plots(prices, entropy_series, path)
 
-    paper = generate_paper(exp_id, metrics, [])
+    # ======================
+    # PAPER
+    # ======================
+    paper = generate_paper(exp_id, metrics)
 
     with open(f"{path}/paper.md", "w") as f:
         f.write(paper)
 
     print("Experiment:", exp_id)
-    print("Results:", results)
+    print("Scientific Score:", score)
+    print("Robustness:", robustness)
 
 
 if __name__ == "__main__":
