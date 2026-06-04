@@ -14,21 +14,26 @@ def run_loop(returns, iterations=5):
 
     null_dist = null_correlation_test(test)
 
-    threshold = np.mean(null_dist) + 2*np.std(null_dist)
+    threshold = float(np.mean(null_dist) + 2 * np.std(null_dist))
 
-    for i in range(iterations):
+    for _ in range(iterations):
 
         hyp = generate_hypothesis()
 
         result = evaluate_hypothesis(test)
 
-        accepted = result["best_corr"] > threshold
+        corr = result.get("best_corr", 0.0)
+
+        if np.isnan(corr) or np.isinf(corr):
+            corr = 0.0
+
+        accepted = corr > threshold
 
         history.append({
             "hypothesis": hyp,
             "result": result,
             "accepted": accepted,
-            "threshold": float(threshold)
+            "threshold": threshold
         })
 
     return history

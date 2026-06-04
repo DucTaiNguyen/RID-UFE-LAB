@@ -1,55 +1,59 @@
 import numpy as np
+import warnings
 
-from core.data_loader import load_asset
-from core.metrics import log_returns
-
-from core.loop import run_loop
+from core.safe import safe_run
+from core.datasets import get_datasets
+from core.multidataset import evaluate_all
 
 from core.experiment import create_experiment, save_metrics
 from core.research import save_research_result
+from core.paper import generate_paper
 
 
-prices = load_asset()
-returns = log_returns(prices)
+warnings.filterwarnings("ignore")
+np.seterr(all="ignore")
 
-# =========================
-# AGENT LOOP
-# =========================
-history = run_loop(returns, iterations=8)
 
-# =========================
-# METRICS SUMMARY
-# =========================
-accepted = sum(h["accepted"] for h in history)
+def pipeline():
 
-metrics = {
-    "total_hypotheses": len(history),
-    "accepted_hypotheses": accepted,
-    "acceptance_rate": accepted / len(history)
-}
+    datasets = get_datasets()
 
-# =========================
-# FINAL CONCLUSION
-# =========================
-if metrics["acceptance_rate"] > 0.5:
-    conclusion = "SELF-ORGANIZED_SIGNAL_STRUCTURE_DETECTED"
-else:
-    conclusion = "WEAK_EMERGENT_STRUCTURE"
+    results = evaluate_all(datasets)
 
-# =========================
-# SAVE
-# =========================
-exp_id, path = create_experiment()
+    # =========================
+    # SCIENTIFIC INTERPRETATION
+    # =========================
+    signal_strength = {
+        k: v for k, v in results.items() if v > 0.5
+    }
 
-save_metrics(path, metrics)
-save_research_result(
-    path,
-    "Autonomous hypothesis generation in financial information field",
-    metrics,
-    conclusion
-)
+    noise_level = results["NOISE"]
 
-print("Experiment:", exp_id)
-print("Acceptance Rate:", metrics["acceptance_rate"])
-print("Conclusion:", conclusion)
-print(metrics)
+    metrics = {
+        "dataset_results": results,
+        "signal_strength": signal_strength,
+        "noise_baseline": noise_level
+    }
+
+    exp_id, path = create_experiment()
+
+    save_metrics(path, metrics)
+
+    save_research_result(
+        path,
+        "Cross-market information field structure analysis",
+        metrics,
+        "EVALUATED"
+    )
+
+    paper = generate_paper(exp_id, metrics, [])
+
+    with open(f"{path}/paper.md", "w") as f:
+        f.write(paper)
+
+    print("Experiment:", exp_id)
+    print("Results:", results)
+
+
+if __name__ == "__main__":
+    safe_run(pipeline)
