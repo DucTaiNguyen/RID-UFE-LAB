@@ -1,97 +1,75 @@
 from datetime import datetime
-import numpy as np
 import json
-import os
 
+def generate_paper(exp_id, metrics):
 
-def load_memory():
-    if os.path.exists("memory.json"):
-        return json.load(open("memory.json"))
-    return []
+    def pretty(v):
+        try:
+            return f"{float(v):.6f}"
+        except:
+            return str(v)
 
-
-def generate_paper(exp_id, metrics, prices=None):
-
-    memory = load_memory()
-
-    # =========================
-    # EVOLUTION SIGNAL
-    # =========================
-    prev = memory[-2]["metrics"] if len(memory) > 1 else metrics
-
-    delta_acc = metrics.get("accuracy", 0) - prev.get("accuracy", 0)
-    delta_rob = metrics.get("robustness_mean", 0) - prev.get("robustness_mean", 0)
-
-    # =========================
-    # MARKET STRUCTURE
-    # =========================
-    price_change = None
-    volatility_proxy = None
-
-    if prices is not None:
-        price_change = float((prices[-1] - prices[0]) / prices[0])
-        volatility_proxy = float(np.std(prices))
-
-    # =========================
-    # REGIME DETECTION
-    # =========================
-    regime = "STABLE_SYSTEM"
-
-    if abs(delta_acc) > 0.01:
-        regime = "DYNAMIC_SHIFT"
-    if volatility_proxy and volatility_proxy > 1000:
-        regime = "HIGH_NOISE_MARKET"
-
-    # =========================
-    # PAPER OUTPUT
-    # =========================
     return f"""
-# RID-UFE Bitcoin Information Field Report
+# RID-UFE Information Field Report
+
+---
 
 ## Experiment ID
 {exp_id}
 
 ---
 
-## MARKET STATE
+## 1. ABSTRACT (Simple Explanation)
 
-- Latest Price: {prices[-1] if prices is not None else 'N/A'}
-- Price Change: {price_change}
-- Volatility Proxy: {volatility_proxy}
+This system analyzes Bitcoin as an information field.
 
----
-
-## SYSTEM EVOLUTION
-
-- Δ Accuracy: {delta_acc:.6f}
-- Δ Robustness: {delta_rob:.6f}
-
-Regime Classification:
-**{regime}**
+It studies whether price movements show:
+- structure
+- randomness
+- hidden signals
 
 ---
 
-## INFORMATION INTERPRETATION
+## 2. RESULTS (Core Metrics)
 
-Bitcoin is modeled as an information field:
-
-- Price = observable state
-- Volatility = uncertainty measure
-- Accuracy = structural detection strength
-
----
-
-## EVOLUTION STATUS
-
-This system is NOT static.
-It evolves via memory accumulation across experiments.
+- Volatility: {pretty(metrics.get('volatility'))}
+- Entropy: {pretty(metrics.get('entropy'))}
+- Random Entropy: {pretty(metrics.get('random_entropy'))}
+- Spectral Gap: {pretty(metrics.get('spectral_gap'))}
 
 ---
 
-## CONCLUSION
+## 3. INFORMATION STRUCTURE
 
-RID-UFE detects weak but non-random structure
-in Bitcoin market dynamics with temporal evolution.
+- Curvature Mean: {pretty(metrics.get('curvature_mean'))}
+- Curvature Std: {pretty(metrics.get('curvature_std'))}
+- Curvature–Future Vol Correlation:
+  {pretty(metrics.get('curvature_future_vol_corr'))}
+
+---
+
+## 4. STATISTICAL INTERPRETATION
+
+- Entropy Z: {pretty(metrics.get('entropy_z'))}
+- P-value: {pretty(metrics.get('entropy_p'))}
+
+Interpretation:
+- If p-value ≈ 1 → no strong statistical significance
+- If correlation > 0 → weak predictive structure possible
+
+---
+
+## 5. CONCLUSION (Human-readable)
+
+This report suggests that Bitcoin market behavior:
+
+- shows weak but measurable structure
+- is not fully random
+- contains low-strength predictive signals
+
+However, the signal strength is still limited.
+
+---
 
 Generated: {datetime.utcnow().isoformat()}
 """
