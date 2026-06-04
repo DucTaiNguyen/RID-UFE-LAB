@@ -1,4 +1,4 @@
-name: Build RID-UFE Paper PDF
+name: RID-UFE Robust Paper Build
 
 on:
   push:
@@ -12,22 +12,34 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4
 
-    - name: Install Pandoc + LaTeX
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y pandoc texlive texlive-latex-extra texlive-fonts-recommended
 
-    - name: Build PDF from paper.md
+    - name: Locate latest paper.md
+      id: findpaper
+      run: |
+        FILE=$(find . -type f -name "paper.md" | sort | tail -n 1)
+
+        echo "Found: $FILE"
+
+        if [ -z "$FILE" ]; then
+          echo "ERROR: No paper.md found anywhere in repo"
+          exit 1
+        fi
+
+        echo "paper_path=$FILE" >> $GITHUB_OUTPUT
+
+    - name: Build PDF
       run: |
         mkdir -p output
-        cp -r experiments/*/price.png output/ || true
-        cp -r experiments/*/entropy.png output/ || true
 
-        pandoc experiments/*/paper.md \
+        pandoc "${{ steps.findpaper.outputs.paper_path }}" \
           -o output/paper.pdf \
           --pdf-engine=xelatex
 
-    - name: Upload PDF artifact
+    - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: rid-ufe-paper
