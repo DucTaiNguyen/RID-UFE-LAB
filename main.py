@@ -31,7 +31,7 @@ def pipeline():
     exp_id, path = create_experiment()
     save_metrics(path, metrics)
 
-    paper = generate_paper(exp_id, metrics, prices)
+    paper = generate_paper(exp_id, metrics)
 
     with open(f"{path}/paper.md", "w") as f:
         f.write(paper)
