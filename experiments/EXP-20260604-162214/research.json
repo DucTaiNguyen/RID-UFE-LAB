@@ -1,0 +1,16 @@
+{
+    "timestamp": "2026-06-04T16:22:14.704924",
+    "hypothesis": "Information curvature dynamics contain structure predictive of market behavior.",
+    "metrics": {
+        "volatility": 0.0225309181512371,
+        "entropy": 2.209536678565937,
+        "random_entropy": 3.0716498345214274,
+        "spectral_gap": 93.45358118051149,
+        "information_curvature_static": 4.59506621630318,
+        "entropy_z_score": -9.317824664435124,
+        "entropy_p_value": 1.0,
+        "curvature_mean": 3.891743220318753,
+        "curvature_std": 8.494908594318433e-05
+    },
+    "conclusion": "NOT_SUPPORTED"
+}

@@ -1,0 +1,17 @@
+{
+    "timestamp": "2026-06-04T16:27:09.723579",
+    "hypothesis": "Information curvature contains predictive signal for future market volatility.",
+    "metrics": {
+        "volatility": 0.0019325860709645663,
+        "entropy": 2.7873201643007133,
+        "random_entropy": 3.033588154034734,
+        "spectral_gap": 8.435063909952255,
+        "information_curvature_static": 0.0002815241168684214,
+        "entropy_z": 0.0,
+        "entropy_p": 1.0,
+        "curvature_mean": 0.03481025452562393,
+        "curvature_std": 0.040594508710608865,
+        "curvature_future_vol_corr": 0.1896625405876335
+    },
+    "conclusion": "POTENTIAL_SIGNAL_DETECTED"
+}

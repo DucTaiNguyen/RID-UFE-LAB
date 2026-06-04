@@ -1,24 +1,14 @@
 import numpy as np
 
 def laplacian(W):
-
-    D = np.diag(
-        np.sum(W, axis=1)
-    )
-
+    D = np.diag(np.sum(W, axis=1))
     return D - W
 
+
 def eigenvalues(L):
+    return np.linalg.eigvalsh(L)
 
-    vals = np.linalg.eigvalsh(L)
 
-    return np.sort(vals)
-
-def spectral_gap(vals):
-
-    if len(vals) < 2:
-        return 0.0
-
-    return float(
-        vals[1] - vals[0]
-    )
+def spectral_gap(eig):
+    eig = np.sort(eig)
+    return float(eig[1] - eig[0])

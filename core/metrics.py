@@ -1,35 +1,23 @@
 import numpy as np
 
-def log_returns(prices):
+def log_returns(x):
 
-    prices = np.asarray(prices)
+    x = np.asarray(x)
 
-    prices = prices[prices > 0]
+    return np.diff(np.log(x + 1e-12))
 
-    returns = np.diff(np.log(prices))
-
-    returns = returns[np.isfinite(returns)]
-
-    return returns
 
 def volatility(r):
 
     return float(np.std(r))
 
-def entropy(r, bins=30):
 
-    hist, _ = np.histogram(
-        r,
-        bins=bins,
-        density=True
-    )
+def entropy(r):
+
+    hist, _ = np.histogram(r, bins=30, density=True)
 
     hist = hist[hist > 0]
 
-    p = hist / hist.sum()
+    p = hist / np.sum(hist)
 
-    return float(
-        -np.sum(
-            p * np.log(p)
-        )
-    )
+    return float(-np.sum(p * np.log(p)))

@@ -1,19 +1,12 @@
-import yfinance as yf
 import numpy as np
 
-def load_asset(
-    ticker="BTC-USD",
-    period="1y"
-):
-    df = yf.download(
-        ticker,
-        period=period,
-        auto_adjust=True,
-        progress=False
+def load_asset():
+
+    # giả lập dữ liệu BTC nếu chưa có dataset thật
+    np.random.seed(42)
+
+    price = 100000 + np.cumsum(
+        np.random.normal(0, 200, 400)
     )
 
-    close = df["Close"]
-
-    prices = np.asarray(close).reshape(-1)
-
-    return prices.astype(float)
+    return price

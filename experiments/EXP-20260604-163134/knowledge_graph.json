@@ -1,0 +1,16 @@
+{
+    "nodes": [
+        "Entropy",
+        "Curvature",
+        "Spectral_Gap",
+        "MultiScale_Curvature",
+        "Future_Volatility"
+    ],
+    "edges": {
+        "Curvature__Future_Volatility": 0.1896625405876335,
+        "Curvature__Future_Volatility_mean": -3.708200639251334e-05,
+        "Entropy__Randomness": 2.7873201643007133,
+        "Spectral_Gap__Graph_Connectivity": 8.435063909952255,
+        "Best_Scale__scale_20": 0.2644716071323932
+    }
+}

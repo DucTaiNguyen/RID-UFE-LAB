@@ -1,0 +1,8 @@
+{
+    "nodes": [
+        "Entropy",
+        "Curvature",
+        "Future_Volatility",
+        "Spectral_Gap"
+    ],
+    "edges": {

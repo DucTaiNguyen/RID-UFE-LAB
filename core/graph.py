@@ -2,12 +2,15 @@ import numpy as np
 
 def build_graph(series):
 
-    series = np.asarray(series).reshape(-1)
+    x = np.asarray(series).reshape(-1)
 
-    diff = np.abs(
-        series[:, None]
-        -
-        series[None, :]
-    )
+    # normalize
+    x = (x - np.mean(x)) / (np.std(x) + 1e-12)
 
-    return np.exp(-diff)
+    diff = np.abs(x[:, None] - x[None, :])
+
+    sigma = np.std(diff) + 1e-12
+
+    W = np.exp(-diff / sigma)
+
+    return W

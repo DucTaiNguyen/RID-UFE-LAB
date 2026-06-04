@@ -1,0 +1,16 @@
+{
+    "timestamp": "2026-06-04T16:29:23.161484",
+    "hypothesis": "Information field forms causal graph structure over financial variables.",
+    "metrics": {
+        "volatility": 0.0019325860709645663,
+        "entropy": 2.7873201643007133,
+        "spectral_gap": 8.435063909952255,
+        "curvature_static": 0.0002815241168684214,
+        "curvature_mean": 0.03481025452562393,
+        "curvature_std": 0.040594508710608865,
+        "corr_main": 0.1896625405876335,
+        "corr_mean": -3.708200639251334e-05,
+        "corr_std": 0.3355480614808082
+    },
+    "conclusion": "WEAK_GRAPH_STRUCTURE"
+}

@@ -1,0 +1,14 @@
+{
+    "timestamp": "2026-06-04T16:20:19.613996",
+    "hypothesis": "Bitcoin information field exhibits non-random structure.",
+    "metrics": {
+        "volatility": 0.02253108504668373,
+        "entropy": 2.209536678565937,
+        "random_entropy": 3.1181049294639847,
+        "spectral_gap": 93.45381761926512,
+        "information_curvature": 4.595066224447562,
+        "entropy_z_score": -11.575310184193336,
+        "entropy_p_value": 1.0
+    },
+    "conclusion": "NOT_SUPPORTED"
+}

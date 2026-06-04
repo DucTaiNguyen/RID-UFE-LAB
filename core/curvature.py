@@ -1,29 +1,11 @@
 import numpy as np
 
-def spectral_entropy(
-    eigenvalues
-):
+def information_curvature(eig):
 
-    eig = np.abs(
-        np.asarray(
-            eigenvalues
-        )
-    )
+    eig = np.asarray(eig)
+    eig = eig - np.min(eig)
 
-    eig = eig + 1e-12
+    h1 = np.sum(np.exp(-eig))
+    h2 = np.sum(np.exp(-2 * eig))
 
-    p = eig / np.sum(eig)
-
-    return float(
-        -np.sum(
-            p * np.log(p)
-        )
-    )
-
-def information_curvature(
-    eigenvalues
-):
-
-    return spectral_entropy(
-        eigenvalues
-    )
+    return float(np.log(h1 + 1e-12) - np.log(h2 + 1e-12))
