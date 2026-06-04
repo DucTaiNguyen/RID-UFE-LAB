@@ -1,4 +1,4 @@
-name: RID-UFE Paper Build (Single Robust Pipeline)
+name: RID-UFE Paper Build (Robust LaTeX)
 
 on:
   push:
@@ -12,17 +12,12 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4
 
-    - name: Install dependencies
+    - name: Install Pandoc + FULL LaTeX
       run: |
         sudo apt-get update
-        sudo apt-get install -y pandoc texlive texlive-latex-extra texlive-fonts-recommended
+        sudo apt-get install -y pandoc texlive-full
 
-    - name: Debug repo structure
-      run: |
-        echo "=== FILE TREE ==="
-        find . -type f -name "*.md"
-
-    - name: Locate report file (ONLY SOURCE)
+    - name: Locate report.md
       id: find
       run: |
         FILE=$(find ./experiments -type f -name "report.md" | sort | tail -n 1)
@@ -30,13 +25,13 @@ jobs:
         echo "FOUND: $FILE"
 
         if [ -z "$FILE" ]; then
-          echo "ERROR: No report.md found in experiments/"
+          echo "ERROR: No report.md found"
           exit 1
         fi
 
         echo "file=$FILE" >> $GITHUB_OUTPUT
 
-    - name: Build PDF (ROBUST)
+    - name: Build PDF
       run: |
         mkdir -p output
 
