@@ -1,23 +1,26 @@
 import numpy as np
 
-def log_returns(x):
-
-    x = np.asarray(x)
-
-    return np.diff(np.log(x + 1e-12))
+def log_returns(prices):
+    prices = np.asarray(prices, dtype=float)
+    return np.diff(np.log(prices))
 
 
-def volatility(r):
+def structure_signal(returns):
+    """
+    measure if market is structured or noise-like
+    """
 
-    return float(np.std(r))
+    if len(returns) < 2:
+        return 0.0
 
+    autocorr = np.corrcoef(returns[:-1], returns[1:])[0,1]
 
-def entropy(r):
+    volatility = np.std(returns)
 
-    hist, _ = np.histogram(r, bins=30, density=True)
+    entropy_proxy = -np.sum(
+        (returns**2) / (np.sum(returns**2) + 1e-9)
+    )
 
-    hist = hist[hist > 0]
+    signal = abs(autocorr) * volatility * abs(entropy_proxy)
 
-    p = hist / np.sum(hist)
-
-    return float(-np.sum(p * np.log(p)))
+    return float(signal)

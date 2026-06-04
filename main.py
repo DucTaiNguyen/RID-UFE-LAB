@@ -1,35 +1,21 @@
-import numpy as np
-import json
-import warnings
-
-from core.safe import safe_run
 from core.data_loader import load_asset
-from core.metrics import log_returns
+from core.metrics import log_returns, structure_signal
 from core.loop import run_loop
 from core.robustness import run_robustness
 from core.experiment import create_experiment, save_metrics
 from core.paper import generate_paper
+from core.safe import safe_run
 
+import warnings
 warnings.filterwarnings("ignore")
-
-
-def load_memory():
-    try:
-        return json.load(open("memory.json"))
-    except:
-        return []
-
-
-def save_memory(m):
-    mem = load_memory()
-    mem.append(m)
-    json.dump(mem, open("memory.json", "w"), indent=4)
 
 
 def pipeline():
 
-    prices = load_asset().flatten()
+    prices = load_asset()
     returns = log_returns(prices)
+
+    signal = structure_signal(returns)
 
     history = run_loop(returns, iterations=6)
 
@@ -37,14 +23,13 @@ def pipeline():
     robustness = run_robustness(returns, runs=6)
 
     metrics = {
-        "accuracy": acc,
-        "robustness_mean": robustness["mean"]
+        "accuracy": float(acc),
+        "robustness_mean": float(robustness["mean"]),
+        "structure_signal": float(signal)
     }
 
     exp_id, path = create_experiment()
     save_metrics(path, metrics)
-
-    save_memory({"metrics": metrics})
 
     paper = generate_paper(exp_id, metrics, prices)
 
@@ -52,8 +37,7 @@ def pipeline():
         f.write(paper)
 
     print("Experiment:", exp_id)
-    print("Accuracy:", acc)
-    print("Robustness:", robustness["mean"])
+    print("Structure Signal:", signal)
 
 
 if __name__ == "__main__":
