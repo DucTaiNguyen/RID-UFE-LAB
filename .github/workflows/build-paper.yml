@@ -1,4 +1,4 @@
-name: RID-UFE Robust Paper Build
+name: RID-UFE Paper Build (Single Robust Pipeline)
 
 on:
   push:
@@ -17,7 +17,12 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y pandoc texlive texlive-latex-extra texlive-fonts-recommended
 
-    - name: Find latest report.md
+    - name: Debug repo structure
+      run: |
+        echo "=== FILE TREE ==="
+        find . -type f -name "*.md"
+
+    - name: Locate report file (ONLY SOURCE)
       id: find
       run: |
         FILE=$(find ./experiments -type f -name "report.md" | sort | tail -n 1)
@@ -31,7 +36,7 @@ jobs:
 
         echo "file=$FILE" >> $GITHUB_OUTPUT
 
-    - name: Build PDF
+    - name: Build PDF (ROBUST)
       run: |
         mkdir -p output
 
