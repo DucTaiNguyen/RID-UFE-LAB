@@ -17,29 +17,25 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y pandoc texlive texlive-latex-extra texlive-fonts-recommended
 
-    - name: Find latest paper.md
-      id: findpaper
+    - name: Find latest report.md
+      id: find
       run: |
-        echo "Searching for paper.md..."
+        FILE=$(find ./experiments -type f -name "report.md" | sort | tail -n 1)
 
-        FILE=$(find . -type f -name "paper.md" | sort | tail -n 1)
-
-        echo "Found: $FILE"
+        echo "FOUND: $FILE"
 
         if [ -z "$FILE" ]; then
-          echo "ERROR: No paper.md found in repo"
+          echo "ERROR: No report.md found in experiments/"
           exit 1
         fi
 
-        echo "paper_path=$FILE" >> $GITHUB_OUTPUT
+        echo "file=$FILE" >> $GITHUB_OUTPUT
 
-    - name: Build PDF safely
+    - name: Build PDF
       run: |
         mkdir -p output
 
-        echo "Using file: ${{ steps.findpaper.outputs.paper_path }}"
-
-        pandoc "${{ steps.findpaper.outputs.paper_path }}" \
+        pandoc "${{ steps.find.outputs.file }}" \
           -o output/paper.pdf \
           --pdf-engine=xelatex
 
