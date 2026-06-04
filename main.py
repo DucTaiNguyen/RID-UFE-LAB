@@ -8,9 +8,7 @@ from core.metrics import (
     entropy
 )
 
-from core.graph import (
-    build_graph
-)
+from core.graph import build_graph
 
 from core.spectral import (
     laplacian,
@@ -29,6 +27,10 @@ from core.experiment import (
 
 from core.report import (
     generate_report
+)
+
+from core.research import (
+    save_research_result
 )
 
 prices = load_asset()
@@ -75,11 +77,28 @@ metrics = {
     "information_curvature": curvature
 }
 
+hypothesis = (
+    "Bitcoin information field exhibits "
+    "non-random structure."
+)
+
+if ent < random_entropy:
+    conclusion = "SUPPORTED"
+else:
+    conclusion = "NOT_SUPPORTED"
+
 exp_id, path = create_experiment()
 
 save_metrics(
     path,
     metrics
+)
+
+save_research_result(
+    path,
+    hypothesis,
+    metrics,
+    conclusion
 )
 
 generate_report(
@@ -88,5 +107,8 @@ generate_report(
     f"{path}/report.md"
 )
 
+print()
 print("Experiment:", exp_id)
+print("Hypothesis:", hypothesis)
+print("Conclusion:", conclusion)
 print(metrics)
