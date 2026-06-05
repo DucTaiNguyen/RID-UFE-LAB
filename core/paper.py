@@ -1,16 +1,38 @@
 from datetime import datetime
-import json
 
-def generate_paper(exp_id, metrics):
+def f(x):
+    try:
+        return float(x)
+    except:
+        return 0.0
 
-    def pretty(v):
-        try:
-            return f"{float(v):.6f}"
-        except:
-            return str(v)
+
+def generate_paper(exp_id, m):
+
+    vol = f(m.get("volatility"))
+    ent = f(m.get("entropy"))
+    rand = f(m.get("random_entropy"))
+    gap = f(m.get("spectral_gap"))
+    curv = f(m.get("curvature_mean"))
+    corr = f(m.get("curvature_future_vol_corr"))
+    p = f(m.get("entropy_p"))
+
+    # --- INTERPRETATION LOGIC ---
+    signal_strength = abs(corr)
+
+    if signal_strength < 0.1:
+        signal_level = "VERY WEAK"
+    elif signal_strength < 0.3:
+        signal_level = "WEAK"
+    elif signal_strength < 0.6:
+        signal_level = "MODERATE"
+    else:
+        signal_level = "STRONG"
+
+    randomness = "HIGH" if ent > rand else "STRUCTURED"
 
     return f"""
-# RID-UFE Information Field Report
+# RID-UFE INFORMATION FIELD REPORT
 
 ---
 
@@ -19,55 +41,50 @@ def generate_paper(exp_id, metrics):
 
 ---
 
-## 1. ABSTRACT (Simple Explanation)
+## 1. RAW METRICS
 
-This system analyzes Bitcoin as an information field.
-
-It studies whether price movements show:
-- structure
-- randomness
-- hidden signals
-
----
-
-## 2. RESULTS (Core Metrics)
-
-- Volatility: {pretty(metrics.get('volatility'))}
-- Entropy: {pretty(metrics.get('entropy'))}
-- Random Entropy: {pretty(metrics.get('random_entropy'))}
-- Spectral Gap: {pretty(metrics.get('spectral_gap'))}
+- Volatility: {vol:.6f}
+- Entropy: {ent:.6f}
+- Random Entropy: {rand:.6f}
+- Spectral Gap: {gap:.6f}
+- Curvature Mean: {curv:.6f}
+- Curvature–Future Vol Correlation: {corr:.6f}
+- P-value: {p:.6f}
 
 ---
 
-## 3. INFORMATION STRUCTURE
+## 2. SYSTEM DIAGNOSIS
 
-- Curvature Mean: {pretty(metrics.get('curvature_mean'))}
-- Curvature Std: {pretty(metrics.get('curvature_std'))}
-- Curvature–Future Vol Correlation:
-  {pretty(metrics.get('curvature_future_vol_corr'))}
-
----
-
-## 4. STATISTICAL INTERPRETATION
-
-- Entropy Z: {pretty(metrics.get('entropy_z'))}
-- P-value: {pretty(metrics.get('entropy_p'))}
+- Signal Strength Level: {signal_level}
+- Information Structure: {randomness}
 
 Interpretation:
-- If p-value ≈ 1 → no strong statistical significance
-- If correlation > 0 → weak predictive structure possible
+- Volatility measures market instability
+- Entropy measures uncertainty/randomness
+- Spectral gap reflects structural separation in data dynamics
+- Curvature correlation indicates predictive structure
 
 ---
 
-## 5. CONCLUSION (Human-readable)
+## 3. HUMAN INTERPRETATION
 
-This report suggests that Bitcoin market behavior:
+This system is analyzing Bitcoin as an information field.
 
-- shows weak but measurable structure
-- is not fully random
-- contains low-strength predictive signals
+Current result suggests:
 
-However, the signal strength is still limited.
+- The system is NOT purely random
+- There is a weak but measurable structure
+- Predictive signal exists but is limited in strength
+
+---
+
+## 4. CONCLUSION
+
+The information field shows:
+
+→ {signal_level} predictive structure  
+→ partial organization in market dynamics  
+→ no strong deterministic pattern yet
 
 ---
 
