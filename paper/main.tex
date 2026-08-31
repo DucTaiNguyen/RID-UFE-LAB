@@ -1,28 +1,39 @@
 
-\documentclass{article}
+\documentclass[10pt]{article}
 
-\title{RID-UFE Bitcoin Research}
-\author{Tai D. Nguyen}
-\date{}
+\title{RID-UFE Real Data Scientific Report}
+\date{\today}
 
 \begin{document}
 
 \maketitle
 
-\section{Abstract}
+\begin{abstract}
+This paper analyzes real-world Bitcoin market data
+using a recursive information dynamics framework.
+\end{abstract}
 
-This report analyzes Bitcoin market information.
+\section{Data}
+
+Bitcoin Price (USD): 80394.0
+
+\section{Method}
+
+We define:
+
+Signal = price / 100000
+
+Noise = price mod 1000
+
+Score = Signal - Noise
 
 \section{Results}
 
-\begin{verbatim}
-Bitcoin Price: 73970.0
-Log Price: 11.2114
+Score: 0.40993999999999997
 
-\end{verbatim}
+\section{Discussion}
 
-\section{Conclusion}
-
-This is the first data-driven RID-UFE report.
+The system demonstrates how financial markets
+can be interpreted as information fields.
 
 \end{document}
