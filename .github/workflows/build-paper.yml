@@ -1,46 +1,55 @@
-name: RID-UFE Paper Build (Robust LaTeX)
+name: RID-UFE Paper Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v5
 
-    - name: Install Pandoc + FULL LaTeX
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y pandoc texlive-full
+      - name: Install Pandoc and XeLaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive-xetex
 
-    - name: Locate report.md
-      id: find
-      run: |
-        FILE=$(find ./experiments -type f -name "report.md" | sort | tail -n 1)
+      - name: Locate latest experiment paper
+        id: find
+        shell: bash
+        run: |
+          FILE=$(find ./experiments -type f \( -name "paper.md" -o -name "report.md" \) | sort | tail -n 1)
 
-        echo "FOUND: $FILE"
+          echo "FOUND: $FILE"
 
-        if [ -z "$FILE" ]; then
-          echo "ERROR: No report.md found"
-          exit 1
-        fi
+          if [ -z "$FILE" ]; then
+            echo "ERROR: No paper.md or report.md found under experiments/"
+            exit 1
+          fi
 
-        echo "file=$FILE" >> $GITHUB_OUTPUT
+          echo "file=$FILE" >> "$GITHUB_OUTPUT"
 
-    - name: Build PDF
-      run: |
-        mkdir -p output
+      - name: Build PDF
+        run: |
+          mkdir -p output
+          pandoc "${{ steps.find.outputs.file }}" \
+            -o output/paper.pdf \
+            --pdf-engine=xelatex
 
-        pandoc "${{ steps.find.outputs.file }}" \
-          -o output/paper.pdf \
-          --pdf-engine=xelatex
+      - name: Verify PDF
+        run: |
+          test -s output/paper.pdf
+          ls -lh output/paper.pdf
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: rid-ufe-paper
-        path: output/paper.pdf
+      - name: Upload paper artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rid-ufe-paper
+          path: output/paper.pdf
