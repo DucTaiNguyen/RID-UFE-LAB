@@ -6,6 +6,8 @@ from core.metrics import log_returns
 from core.rolling import rolling_curvature
 from core.causal import future_volatility, align_series, correlation
 from core.evidence import classify_evidence
+from core.graph import build_graph
+from core.spectral import laplacian, eigenvalues, spectral_gap
 
 
 def run_validation(
@@ -19,6 +21,25 @@ def run_validation(
     prices = load_asset()
 
     returns = log_returns(prices)
+
+    # Spectral validation on the terminal return window
+    spectral_window = min(window, len(returns))
+
+    if spectral_window < 3:
+        raise ValueError(
+            f"Insufficient data for spectral validation: {spectral_window}"
+        )
+
+    spectral_series = returns[-spectral_window:]
+
+    W = build_graph(spectral_series)
+    L = laplacian(W)
+    eig = eigenvalues(L)
+
+    lambda_0 = float(eig[0])
+    lambda_1 = float(eig[1])
+    spectral_gap_value = float(spectral_gap(eig))
+    spectral_finite = bool(np.isfinite(eig).all())
 
     curvature = rolling_curvature(
         returns,
@@ -149,6 +170,17 @@ def run_validation(
         "test_samples": int(
             len(test_curvature)
         ),
+
+        "spectral": {
+            "lambda_0": lambda_0,
+            "lambda_1": lambda_1,
+            "algebraic_connectivity": lambda_1,
+            "spectral_gap": spectral_gap_value,
+            "finite": spectral_finite,
+            "window": int(spectral_window),
+        },
+
+        "spectral_gap": spectral_gap_value,
 
         "parameters": {
             "window": window,
