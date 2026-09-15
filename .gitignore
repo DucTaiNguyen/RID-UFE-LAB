@@ -5,3 +5,9 @@ core/secret/
 *.env
 *.log
 __pycache__/
+
+# Local experiment outputs
+experiments/*/
+
+# Separate project
+quantum-gateway/
