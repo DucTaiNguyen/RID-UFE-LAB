@@ -81,7 +81,8 @@ def pipeline():
     # 9. Generate research paper
     paper = generate_paper(
         exp_id,
-        metrics
+        metrics,
+        evidence
     )
 
     with open(
