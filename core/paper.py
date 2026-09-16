@@ -16,14 +16,25 @@ def generate_paper(exp_id, m, evidence=None):
     evidence = evidence or {}
 
     # Basic metrics
-    vol = m.get("volatility")
-    ent = m.get("entropy")
-    autocorr = m.get("autocorrelation")
-    structure = m.get("structure_signal")
+    raw = evidence.get("raw_metrics", {})
+
+    vol = raw.get("volatility", m.get("volatility"))
+    ent = raw.get("entropy", m.get("entropy"))
+    autocorr = raw.get("autocorrelation", m.get("autocorrelation"))
+    structure = raw.get(
+        "structure_signal",
+        m.get("structure_signal")
+    )
 
     # Validation evidence
-    corr = evidence.get("observed_association")
-    p = evidence.get("null_p_value_two_sided")
+    corr = raw.get(
+        "curvature_future_vol_correlation",
+        evidence.get("observed_association")
+    )
+    p = raw.get(
+        "permutation_p_value",
+        evidence.get("null_p_value_two_sided")
+    )
     train_corr = evidence.get("train_association")
     test_corr = evidence.get("test_association")
 
@@ -37,9 +48,15 @@ def generate_paper(exp_id, m, evidence=None):
         "NOT_ESTABLISHED"
     )
 
-    # Metrics that are not yet computed by the validation pipeline
-    rand = evidence.get("random_entropy")
-    spec = evidence.get("spectral_gap")
+    # Raw validation metrics
+    rand = raw.get(
+        "random_entropy",
+        evidence.get("random_entropy")
+    )
+    spec = raw.get(
+        "spectral_gap",
+        evidence.get("spectral_gap")
+    )
 
     def fmt(x):
         if x is None:
@@ -177,12 +194,26 @@ Author: {AUTHOR} ({ORCID})
 """
 
 
-    vol = _f(m.get("volatility"))
-    ent = _f(m.get("entropy"))
-    rand = _f(m.get("random_entropy"))
-    spec = _f(m.get("spectral_gap"))
-    corr = _f(m.get("curvature_future_vol_corr"))
-    p = _f(m.get("entropy_p"))
+    raw = evidence.get("raw_metrics", {})
+
+    vol = _f(raw.get("volatility", m.get("volatility")))
+    ent = _f(raw.get("entropy", m.get("entropy")))
+    rand = _f(raw.get(
+        "random_entropy",
+        evidence.get("random_entropy")
+    ))
+    spec = _f(raw.get(
+        "spectral_gap",
+        evidence.get("spectral_gap")
+    ))
+    corr = _f(raw.get(
+        "curvature_future_vol_correlation",
+        evidence.get("observed_association")
+    ))
+    p = _f(raw.get(
+        "permutation_p_value",
+        evidence.get("null_p_value_two_sided")
+    ))
 
     signal = abs(corr)
 
