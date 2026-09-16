@@ -12,6 +12,7 @@ public class JarvisService {
     private final PolicyManager mPolicyManager;
     private final ToolRegistry mToolRegistry;
     private final MemoryManager mMemoryManager;
+    private final TraceEngine mTraceEngine;
 
     public JarvisService(Context context) {
         mContext = context;
@@ -20,6 +21,7 @@ public class JarvisService {
         mPolicyManager = new PolicyManager();
         mToolRegistry = new ToolRegistry();
         mMemoryManager = new MemoryManager();
+        mTraceEngine = new TraceEngine();
 
         mToolRegistry.register(
                 new AppTool(context)
@@ -27,6 +29,9 @@ public class JarvisService {
     }
 
     public String ask(String input) {
+
+        String traceId =
+                mTraceEngine.newTraceId();
 
         IntentContract intent =
                 mIntentManager.parse(input);
@@ -45,15 +50,20 @@ public class JarvisService {
                             "Execution denied by policy"
                     );
 
-            rememberObservation(observation);
-
-            return new ExecutionTrace(
+            recordTrace(
+                    traceId,
                     input,
-                    String.valueOf(intent.getType()),
-                    intent.getTarget(),
+                    intent,
                     policy,
                     observation
-            ).toString();
+            );
+
+            return buildResponse(
+                    traceId,
+                    intent,
+                    policy,
+                    observation
+            );
         }
 
         if (policy == PolicyDecision.REQUIRE_CONFIRMATION) {
@@ -67,15 +77,20 @@ public class JarvisService {
                             "User confirmation required"
                     );
 
-            rememberObservation(observation);
-
-            return new ExecutionTrace(
+            recordTrace(
+                    traceId,
                     input,
-                    String.valueOf(intent.getType()),
-                    intent.getTarget(),
+                    intent,
                     policy,
                     observation
-            ).toString();
+            );
+
+            return buildResponse(
+                    traceId,
+                    intent,
+                    policy,
+                    observation
+            );
         }
 
         long startNs =
@@ -85,7 +100,8 @@ public class JarvisService {
                 mToolRegistry.execute(intent);
 
         long latencyMs =
-                (System.nanoTime() - startNs) / 1_000_000L;
+                (System.nanoTime() - startNs)
+                        / 1_000_000L;
 
         ObservationRecord observation =
                 new ObservationRecord(
@@ -96,15 +112,45 @@ public class JarvisService {
                         result.getMessage()
                 );
 
-        rememberObservation(observation);
-
-        return new ExecutionTrace(
+        recordTrace(
+                traceId,
                 input,
-                String.valueOf(intent.getType()),
-                intent.getTarget(),
+                intent,
                 policy,
                 observation
-        ).toString();
+        );
+
+        return buildResponse(
+                traceId,
+                intent,
+                policy,
+                observation
+        );
+    }
+
+    private void recordTrace(
+            String traceId,
+            String input,
+            IntentContract intent,
+            int policy,
+            ObservationRecord observation) {
+
+        TraceRecord trace =
+                new TraceRecord(
+                        traceId,
+                        input,
+                        String.valueOf(intent.getType()),
+                        intent.getTarget(),
+                        policy,
+                        observation.getAction(),
+                        observation.isSuccess(),
+                        observation.getLatencyMs(),
+                        observation.getMessage()
+                );
+
+        mTraceEngine.record(trace);
+
+        rememberObservation(observation);
     }
 
     private void rememberObservation(
@@ -128,8 +174,28 @@ public class JarvisService {
         mMemoryManager.remember(record);
     }
 
+    private String buildResponse(
+            String traceId,
+            IntentContract intent,
+            int policy,
+            ObservationRecord observation) {
+
+        return "traceId=" + traceId
+                + ";intent=" + intent.getType()
+                + ";target=" + intent.getTarget()
+                + ";policy=" + policy
+                + ";action=" + observation.getAction()
+                + ";success=" + observation.isSuccess()
+                + ";latencyMs=" + observation.getLatencyMs()
+                + ";message=" + observation.getMessage();
+    }
+
     public int memorySize() {
         return mMemoryManager.size();
+    }
+
+    public int traceSize() {
+        return mTraceEngine.size();
     }
 
     public String state() {
